@@ -97,7 +97,7 @@ void calc_next_gen(Map* map, char* rulestring) {
 int main(void)
 {
     // zaujimavy rulestring u sachovnicovej mapy : "B234/S23"
-
+    // comvays game of life rulestring: "B3/S23"
     char* rulestring = "B234/S23";
     // map setup
     Map GoL_map;
