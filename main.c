@@ -15,6 +15,7 @@ typedef struct Map_Struct {
     int size;
     int x_size;
     int y_size;
+    int gen;
 } Map;
 
 
@@ -24,6 +25,7 @@ void map_setup(Map* map, int x, int y) {
     map->size = x * y;
     map->x_size = x;
     map->y_size = y;
+    map->gen = 0;
     for (int i = 0; i < map->size; i++) {
         map->map[i] = '0';
         if (i % 2 == 1) {  // delete later
@@ -33,6 +35,7 @@ void map_setup(Map* map, int x, int y) {
 }
 
 void map_print(Map* map) {
+    printf("\033[H\033[J"); // ANSII escape sequence to delete everything and return cursor to start
     for (int y = 0; y < map->y_size; y++) {
         for (int x = 0; x < map->x_size; x++) {
             if (map->map coords(x,y) == '1') {
@@ -40,10 +43,10 @@ void map_print(Map* map) {
             } else {
                 printf("\033[40m  \033[0m");
             }
-
         }
         printf("\n");
     }
+    printf("Generation: %i\n",map->gen);
 }
 
 void calc_next_gen(Map* map, char* rulestring) {
@@ -60,8 +63,8 @@ void calc_next_gen(Map* map, char* rulestring) {
             live_count = 0;
             dead_count = 0;
             // pre kazdu bunku skontrolujeme jej susedov
-            for (int relative_x = -1; relative_x <= 1; relative_x++) {
-                for (int relative_y = -1; relative_y <= 1; relative_y++) {
+            for (int relative_y = -1; relative_y <= 1; relative_y++) {
+                for (int relative_x = -1; relative_x <= 1; relative_x++) {
                     if (relative_x != 0 || relative_y != 0) {
                         if (map->map coords(x + relative_x, y + relative_y) == '1') {
                             live_count++;
@@ -87,20 +90,25 @@ void calc_next_gen(Map* map, char* rulestring) {
     for (int i = 0; i < map->size; i++) {
         map->map[i] = nextgen[i];
     }
+    map->gen++;
     free(nextgen);
 }
 
 int main(void)
 {
-    char* rulestring = "B3/S23";
+    // zaujimavy rulestring u sachovnicovej mapy : "B234/S23"
+
+    char* rulestring = "B234/S23";
     // map setup
     Map GoL_map;
     int x = 25, y = 25;
     map_setup(&GoL_map,x,y);
-    calc_next_gen(&GoL_map,rulestring);
-
     map_print(&GoL_map);
+    while (1) {
+        calc_next_gen(&GoL_map,rulestring);
+        system("pause");
+        map_print(&GoL_map);
+    }
 
-    system("pause");
     return 1;
 }
